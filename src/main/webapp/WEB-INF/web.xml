@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                      http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+	version="3.1" metadata-complete="true">
+	<!-- 通知工程使用spring框架 -->
+	<context-param>
+		<!-- param-name标签的值一定写contextConfigLocation，否则不能正确加载 -->
+		<param-name>contextConfigLocation</param-name>
+		<!-- spring配置文件的存放位置 -->
+		<!--若将文件springmvc-servlet.xml存放在src->main->resources文件夹下，则param-value内为：classpath:springmvc-servlet.xml-->
+		<!--若有多个spring配置文件，都要监听，则设置为-*：
+		<param-value>/WEB-INF/springmvc-*.xml</param-value>-->
+		<param-value>classpath:springmvc-servlet.xml</param-value>
+	</context-param>
+
+	<!-- 配置监听 -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	
+	<!-- 1.解决post类型中文乱码问题：
+	中文乱码过滤器，来自于spring框架,建议放到DispatcherServlet之前 -->
+	<!-- 2.get类型中文乱码问题怎么解决：
+	1.tomcat maven 插件【pom.xml中更改】
+	2.在本地/服务器上的tomcat配置中改【本地的tomcat文件->conf->server.xml-><Connector标签内设置URIEncoding="UTF-8">】
+	-->
+	<filter>
+		<filter-name>characterEncoding</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>characterEncoding</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<!-- 配置核心控制器 -->
+	<servlet>
+		<servlet-name>springmvc</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<!--springmvc配置文件的取名：  “<servlet-name>标签内的名字”servlet.xml-->
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<!--若将springmvc配置文件放在 src/resources文件夹下
+				contextConfigLocation的值:classpath:文件名即可!
+				若将springmvc配置文件放在 Web-INF/xx.xml文件夹下
+				contextConfigLocation的值:/WEB-INF/xx.xml -->
+			<param-value>classpath:springmvc-servlet.xml</param-value>
+		</init-param>
+	</servlet>
+	<!-- 访问DispatcherServlet对应的路径 -->
+	<servlet-mapping>
+		<servlet-name>springmvc</servlet-name>
+		<url-pattern>/</url-pattern> <!--/不过滤jsp防止死循环-->
+	</servlet-mapping>
+</web-app>
